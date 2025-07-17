@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import {
@@ -23,7 +22,7 @@ import api from "../../api/axios";
 const AdminProductList = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editProductId, setEditProductId] = useState<string | null>(null);
+  const [, setEditProductId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Fetch products

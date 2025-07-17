@@ -19,7 +19,13 @@ const ProductList = () => {
       <Box display="flex" flexWrap="wrap" gap={3} justifyContent="flex-start">
         {products.map((product: any) => (
           <Box key={product.id}>
-            <ProductCard product={product} />
+            <ProductCard
+              product={product}
+              onViewDetails={() => {
+              }}
+              onAddToCart={() => {
+              }}
+            />
           </Box>
         ))}
       </Box>
