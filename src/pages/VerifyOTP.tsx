@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/VerifyOtp.tsx
 import {
@@ -13,6 +15,7 @@ import {
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import GoBackButton from "../components/GoBackButton"; // Import GoBackButton
 
 const VerifyOtp = () => {
   const [searchParams] = useSearchParams();
@@ -75,6 +78,9 @@ const VerifyOtp = () => {
   return (
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ mt: 8, p: 4 }}>
+        <Box mb={2} textAlign="left">
+          <GoBackButton />
+        </Box>
         <Typography variant="h5" fontWeight="bold" align="center" mb={3}>
           Verify Your OTP
         </Typography>

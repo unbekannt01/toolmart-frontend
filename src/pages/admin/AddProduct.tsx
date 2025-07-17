@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Box,
@@ -10,6 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
+import GoBackButton from "../../components/GoBackButton"; // Import GoBackButton
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -88,10 +91,10 @@ const AddProduct = () => {
     try {
       const payload = {
         ...form,
-        price: parseFloat(form.price),
-        originalPrice: parseFloat(form.originalPrice || 0),
-        weight: parseFloat(form.weight || 0),
-        stockQuantity: parseInt(form.stockQuantity),
+        price: Number.parseFloat(form.price),
+        originalPrice: Number.parseFloat(form.originalPrice || 0),
+        weight: Number.parseFloat(form.weight || 0),
+        stockQuantity: Number.parseInt(form.stockQuantity),
         includedAccessories: form.includedAccessories
           .split(",")
           .map((a: string) => a.trim()),
@@ -113,6 +116,9 @@ const AddProduct = () => {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
+      <Box mb={2}>
+        <GoBackButton />
+      </Box>
       <Typography variant="h5" mb={2}>
         Add Product
       </Typography>
@@ -224,12 +230,6 @@ const AddProduct = () => {
           name="compatibleWith"
           label="Compatible With (comma separated)"
           value={form.compatibleWith}
-          onChange={handleChange}
-        />
-        <TextField
-          name="videoUrl"
-          label="Video URL"
-          value={form.videoUrl}
           onChange={handleChange}
         />
         <TextField

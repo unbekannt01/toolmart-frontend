@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3001", // adjust to your backend
+  baseURL: "https://nestjs-openapi-1.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
@@ -31,7 +31,7 @@ api.interceptors.response.use(
 
       try {
         const refreshRes = await axios.post(
-          "http://localhost:3001/v1/auth/refresh-token",
+          "https://c1cf7904c5a2.ngrok-free.app/v1/auth/refresh-token",
           {
             refresh_token: localStorage.getItem("refresh_token"),
           }

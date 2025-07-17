@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // src/pages/admin/AdminBrandsPage.tsx
@@ -19,6 +21,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
+import GoBackButton from "../../components/GoBackButton"; // Import GoBackButton
 
 const AdminBrandsPage = () => {
   const [brands, setBrands] = useState([]);
@@ -73,6 +76,9 @@ const AdminBrandsPage = () => {
 
   return (
     <Container>
+      <Box mb={2}>
+        <GoBackButton />
+      </Box>
       <Typography variant="h4" gutterBottom>
         Manage Brands
       </Typography>

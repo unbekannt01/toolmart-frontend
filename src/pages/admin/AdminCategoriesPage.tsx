@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
@@ -22,6 +24,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
+import GoBackButton from "../../components/GoBackButton"; // Import GoBackButton
 
 const AdminCategoriesPage = () => {
   const [categories, setCategories] = useState<any[]>([]);
@@ -132,6 +135,9 @@ const AdminCategoriesPage = () => {
 
   return (
     <Box p={3}>
+      <Box mb={2}>
+        <GoBackButton />
+      </Box>
       <Typography variant="h4" gutterBottom>
         Manage Categories & SubCategories
       </Typography>

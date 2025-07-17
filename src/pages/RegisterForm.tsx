@@ -1,3 +1,7 @@
+"use client";
+
+import type React from "react";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/RegisterForm.tsx
 import {
@@ -9,26 +13,31 @@ import {
   Typography,
   Snackbar,
   Alert,
-} from '@mui/material';
-import { useState } from 'react';
+} from "@mui/material";
+import { useState } from "react";
+import GoBackButton from "../components/GoBackButton"; // Import GoBackButton
 
 type Props = {
   title?: string;
   onSubmit: (formData: any) => Promise<void>;
 };
 
-const RegisterForm = ({ title = 'Register', onSubmit }: Props) => {
+const RegisterForm = ({ title = "Register", onSubmit }: Props) => {
   const [form, setForm] = useState({
-    userName: '',
-    first_name: '',
-    last_name: '',
-    email: '',
-    password: '',
-    mobile_no: '',
-    birth_date: '',
+    userName: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    mobile_no: "",
+    birth_date: "",
   });
 
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -39,25 +48,61 @@ const RegisterForm = ({ title = 'Register', onSubmit }: Props) => {
     try {
       await onSubmit(form);
     } catch (error: any) {
-      const message = error?.response?.data?.message || 'Registration failed!';
-      setSnackbar({ open: true, message, severity: 'error' });
+      const message = error?.response?.data?.message || "Registration failed!";
+      setSnackbar({ open: true, message, severity: "error" });
     }
   };
 
   return (
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ padding: 4, mt: 8 }}>
+        <Box mb={2}>
+          <GoBackButton />
+        </Box>
         <Typography variant="h5" fontWeight="bold" mb={3} align="center">
           {title}
         </Typography>
         <form onSubmit={handleSubmit}>
           <Box display="flex" flexDirection="column" gap={2}>
-            <TextField name="userName" label="Username" value={form.userName} onChange={handleChange} />
-            <TextField name="email" label="Email" value={form.email} onChange={handleChange} required />
-            <TextField name="first_name" label="First Name" value={form.first_name} onChange={handleChange} />
-            <TextField name="last_name" label="Last Name" value={form.last_name} onChange={handleChange} />
-            <TextField name="password" label="Password" type="password" value={form.password} onChange={handleChange} required />
-            <TextField name="mobile_no" label="Mobile (+91...)" value={form.mobile_no} onChange={handleChange} />
+            <TextField
+              name="userName"
+              label="Username"
+              value={form.userName}
+              onChange={handleChange}
+            />
+            <TextField
+              name="email"
+              label="Email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              name="first_name"
+              label="First Name"
+              value={form.first_name}
+              onChange={handleChange}
+            />
+            <TextField
+              name="last_name"
+              label="Last Name"
+              value={form.last_name}
+              onChange={handleChange}
+            />
+            <TextField
+              name="password"
+              label="Password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              name="mobile_no"
+              label="Mobile (+91...)"
+              value={form.mobile_no}
+              onChange={handleChange}
+            />
             <TextField
               name="birth_date"
               label="Birth Date"

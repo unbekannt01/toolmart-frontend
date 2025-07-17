@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/admin/EditProduct.tsx
 import {
@@ -12,6 +14,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
+import GoBackButton from "../../components/GoBackButton"; // Import GoBackButton
 
 const EditProduct = () => {
   const { id } = useParams<{ id: string }>();
@@ -139,6 +142,9 @@ const EditProduct = () => {
 
   return (
     <Container maxWidth="md">
+      <Box mb={2}>
+        <GoBackButton />
+      </Box>
       <Typography variant="h5" mb={2}>
         Update Product
       </Typography>

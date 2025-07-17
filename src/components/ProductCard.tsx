@@ -1,12 +1,27 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/ProductCard.tsx
-import { Card, CardMedia, CardContent, Typography, Box } from "@mui/material";
-import { useState } from "react";
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Button,
+  Box,
+} from "@mui/material";
 
-const ProductCard = ({ product }: { product: any }) => {
-  const [hovered, setHovered] = useState(false);
+interface ProductCardProps {
+  product: any;
+  onViewDetails: (product: any) => void;
+  onAddToCart: (product: any) => void;
+}
 
-  // Use fallback if image not found
+const ProductCard = ({
+  product,
+  onViewDetails,
+  onAddToCart,
+}: ProductCardProps) => {
   const imageUrl =
     product?.images?.[0] && product.images[0].trim() !== ""
       ? product.images[0]
@@ -18,7 +33,7 @@ const ProductCard = ({ product }: { product: any }) => {
         minWidth: 280,
         maxWidth: 300,
         flexGrow: 1,
-        height: hovered ? 400 : 320,
+        height: 350,
         transition: "0.3s",
         position: "relative",
         overflow: "hidden",
@@ -26,57 +41,40 @@ const ProductCard = ({ product }: { product: any }) => {
         ":hover": {
           boxShadow: 6,
         },
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
       }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
       <CardMedia
         component="img"
         height="180"
         image={imageUrl}
-        alt={product.name || "Product Image"}
+        alt={product.name || "No name available"}
       />
-      <CardContent>
+      <CardContent sx={{ flexGrow: 1 }}>
         <Typography variant="h6">{product.name}</Typography>
         <Typography variant="body2" color="text.secondary">
-          ₹{product.price}
+          ₹{product.price || 0.0}
         </Typography>
-
-        {hovered && (
-          <Box mt={2} maxHeight={140} overflow="auto">
-            <Typography variant="body2">
-              <strong>Model:</strong> {product.model}
-            </Typography>
-            <Typography variant="body2">
-              <strong>SKU:</strong> {product.sku}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Voltage:</strong> {product.voltage}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Power Type:</strong> {product.powerType}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Condition:</strong> {product.condition}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Stock:</strong> {product.stockQuantity || "N/A"}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Warranty:</strong> {product.warrantyPeriod || "N/A"}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Brand:</strong> {product.brandName || "N/A"}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Category:</strong> {product.categoryName || "N/A"}
-            </Typography>
-            <Typography variant="body2">
-              <strong>SubCategory:</strong> {product.subCategoryName || "N/A"}
-            </Typography>
-          </Box>
-        )}
       </CardContent>
+      <Box sx={{ p: 2, pt: 0 }}>
+        <Button
+          variant="contained"
+          fullWidth
+          sx={{ mb: 1 }}
+          onClick={() => onViewDetails(product)}
+        >
+          View Details
+        </Button>
+        <Button
+          variant="outlined"
+          fullWidth
+          onClick={() => onAddToCart(product.id)}
+        >
+          Add to Cart
+        </Button>
+      </Box>
     </Card>
   );
 };

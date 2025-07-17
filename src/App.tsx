@@ -19,6 +19,12 @@ import VerifyOtp from "./pages/VerifyOTP";
 import VerifyEmail from "./pages/VerifyEmail";
 import CheckYourEmail from "./pages/CheckYourEmail";
 import ProductList from "./components/ProductList";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import MyOrderPage from "./pages/MyOrderPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
+import UserRoute from "./routes/UserRoute";
+import OrderHistoryPage from "./pages/OrderHistoryPage";
 
 const App = () => {
   return (
@@ -28,7 +34,6 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/products" element={<ProductList />} />
           <Route path="/register" element={<RegisterOptions />} />
           <Route path="/register/simple" element={<RegisterSimple />} />
           <Route path="/register/otp" element={<RegisterUsingOtp />} />
@@ -39,7 +44,16 @@ const App = () => {
           />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/check-your-email" element={<CheckYourEmail />} />
-          {/* Admin-only */}
+          {/* User-only routes */}
+          <Route element={<UserRoute />}>
+            <Route path="/products" element={<ProductList />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/my-order" element={<MyOrderPage />} />
+            <Route path="/order-success" element={<OrderSuccessPage />} />
+            <Route path="/order-history" element={<OrderHistoryPage />} />{" "}
+          </Route>
+          {/* Admin-only routes */}
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
@@ -49,8 +63,6 @@ const App = () => {
             <Route path="/admin/brands" element={<AdminBrandsPage />} />
             <Route path="/admin/categories" element={<AdminCategoriesPage />} />
             {/* Add more admin routes as needed */}
-
-            {/* Add more admin routes */}
           </Route>
         </Routes>
       </Container>

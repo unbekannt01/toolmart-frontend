@@ -1,5 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
+
 import {
   Box,
   Typography,
@@ -21,6 +23,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import GoBackButton from "../components/GoBackButton";
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -85,6 +88,9 @@ const AdminUsersPage = () => {
 
   return (
     <Box p={3}>
+      <Box mb={2}>
+        <GoBackButton />
+      </Box>
       <Typography variant="h4" gutterBottom>
         Manage Users
       </Typography>

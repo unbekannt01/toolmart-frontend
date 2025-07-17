@@ -1,3 +1,5 @@
+"use client";
+
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
@@ -30,16 +32,32 @@ const Navbar = () => {
         </Typography>
 
         <Box display="flex" gap={2}>
-          {isLoggedIn && role === "ADMIN" && (
-            <Button color="inherit" component={Link} to="/admin">
-              Admin Panel
-            </Button>
-          )}
-
           {isLoggedIn ? (
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button>
+            role === "ADMIN" ? (
+              <>
+                <Button color="inherit" component={Link} to="/admin">
+                  Admin Panel
+                </Button>
+                <Button color="inherit" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button color="inherit" component={Link} to="/cart">
+                  View Cart
+                </Button>
+                <Button color="inherit" component={Link} to="/my-order">
+                  My Order
+                </Button>
+                <Button color="inherit" component={Link} to="/order-history">
+                  Order History
+                </Button>
+                <Button color="inherit" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            )
           ) : (
             <>
               <Button color="inherit" component={Link} to="/login">
