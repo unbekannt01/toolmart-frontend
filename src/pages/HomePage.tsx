@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Typography, CircularProgress, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import ProductDetailsOverlay from "../components/ProductDetailsOverlay";
 import api from "../api/axios";
+import ReviewModal from "../components/ReviewModel";
 
 const HomePage: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -15,6 +17,12 @@ const HomePage: React.FC = () => {
     any | null
   >(null);
   const navigate = useNavigate();
+
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedProductForReview, setSelectedProductForReview] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     api
@@ -64,6 +72,11 @@ const HomePage: React.FC = () => {
     }
   };
 
+  const handleAddReview = (productId: string, productName: string) => {
+    setSelectedProductForReview({ id: productId, name: productName });
+    setReviewModalOpen(true);
+  };
+
   if (loading) {
     return (
       <Box mt={6} display="flex" justifyContent="center">
@@ -75,7 +88,7 @@ const HomePage: React.FC = () => {
   return (
     <Box mt={4}>
       <Typography variant="h4" mb={3} fontWeight="bold">
-        ToolMart Products
+        Carpentry Tools
       </Typography>
 
       <Box display="flex" flexWrap="wrap" gap={3} justifyContent="flex-start">
@@ -88,6 +101,7 @@ const HomePage: React.FC = () => {
                   product={product}
                   onViewDetails={handleViewDetails}
                   onAddToCart={handleAddToCart}
+                  onAddReview={handleAddReview}
                 />
               </Box>
             ))
@@ -100,6 +114,18 @@ const HomePage: React.FC = () => {
         <ProductDetailsOverlay
           product={selectedProductForDetails}
           onClose={handleCloseDetails}
+        />
+      )}
+
+      {selectedProductForReview && (
+        <ReviewModal
+          open={reviewModalOpen}
+          onClose={() => {
+            setReviewModalOpen(false);
+            setSelectedProductForReview(null);
+          }}
+          productId={selectedProductForReview.id}
+          productName={selectedProductForReview.name}
         />
       )}
     </Box>

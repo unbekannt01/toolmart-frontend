@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://nestjs-openapi-1.onrender.com",
+  baseURL: "http://localhost:3001",
   headers: {
     "Content-Type": "application/json",
   },

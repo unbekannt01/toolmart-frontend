@@ -25,6 +25,7 @@ import MyOrderPage from "./pages/MyOrderPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import UserRoute from "./routes/UserRoute";
 import OrderHistoryPage from "./pages/OrderHistoryPage";
+import ResendVerificationPage from "./pages/ResendVerificationPage";
 
 const App = () => {
   return (
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterOptions />} />
           <Route path="/register/simple" element={<RegisterSimple />} />
+          <Route path="/resend-verification" element={<ResendVerificationPage />} />
           <Route path="/register/otp" element={<RegisterUsingOtp />} />
           <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route

@@ -1,3 +1,7 @@
+"use client";
+
+import type React from "react";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Box,
@@ -24,16 +28,35 @@ const LoginPage = () => {
   });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post(`/v1/auth/login`, form, {});
+      const res = await api.post(`/v1/auth/login`, form);
+
+      const userStatus = res.data.status;
+
+      if (userStatus !== "ACTIVE") {
+        setSnackbar({
+          open: true,
+          message: "Your account is not verified.",
+          severity: "warning",
+        });
+
+        setTimeout(() => {
+          // Pass the email/identifier to the resend verification page
+          navigate("/resend-verification", {
+            state: { email: form.identifier },
+          });
+        }, 1500);
+
+        return;
+      }
 
       const token = res.data.access_token;
       const decoded: any = jwtDecode(token);
@@ -60,6 +83,27 @@ const LoginPage = () => {
     } catch (err: any) {
       const message = err?.response?.data?.message || "Login failed";
       console.error("Login error:", message);
+
+      // Check if the error is related to verification
+      if (
+        message.toLowerCase().includes("verify") ||
+        message.toLowerCase().includes("not active")
+      ) {
+        setSnackbar({
+          open: true,
+          message: "Your account is not verified. Please verify to continue.",
+          severity: "warning",
+        });
+
+        setTimeout(() => {
+          navigate("/resend-verification", {
+            state: { email: form.identifier },
+          });
+        }, 1500);
+
+        return;
+      }
+
       setSnackbar({ open: true, message, severity: "error" });
     }
   };

@@ -1,308 +1,385 @@
-"use client";
-
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/pages/admin/EditProduct.tsx
 import {
-  Box,
   Button,
-  Container,
-  TextField,
+  Card,
+  CardContent,
   Typography,
-  CircularProgress,
+  TextField,
+  Snackbar,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
   MenuItem,
+  CircularProgress,
+  Box,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import GoBackButton from "../../components/GoBackButton"; // Import GoBackButton
+import GoBackButton from "../../components/GoBackButton";
 
-const EditProduct = () => {
-  const { id } = useParams<{ id: string }>();
+interface Brand {
+  id: number;
+  name: string;
+}
+
+interface SubCategory {
+  id: number;
+  name: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  subcategories: SubCategory[];
+}
+
+export default function EditProduct() {
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState<any>({
+  const [formData, setFormData] = useState<any>({
     name: "",
     model: "",
-    description: "",
     price: "",
     originalPrice: "",
-    sku: "",
-    condition: "",
-    powerType: "",
-    voltage: "",
-    weight: "",
-    dimensions: {
-      length: "",
-      width: "",
-      height: "",
-      unit: "cm",
-    },
-    warrantyPeriod: "",
-    includedAccessories: "",
-    compatibleWith: "",
-    images: [""],
-    videoUrl: "",
-    brandId: "",
-    subCategoryId: "",
     stockQuantity: "",
+    brandId: "",
+    categoryId: "", // ✅ Added
+    subCategoryId: "",
   });
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await api.get(`/v1/products/getById/${id}`);
-        const p = res.data;
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-        setForm({
-          name: p.name || "",
-          model: p.model || "",
-          description: p.description || "",
-          price: p.price || "",
-          originalPrice: p.originalPrice || "",
-          sku: p.sku || "",
-          condition: p.condition || "",
-          powerType: p.powerType || "",
-          voltage: p.voltage || "",
-          weight: p.weight || "",
-          dimensions: {
-            length: p.dimensions?.length || "",
-            width: p.dimensions?.width || "",
-            height: p.dimensions?.height || "",
-            unit: p.dimensions?.unit || "cm",
-          },
-          warrantyPeriod: p.warrantyPeriod || "",
-          includedAccessories: (p.includedAccessories || []).join(", "),
-          compatibleWith: (p.compatibleWith || []).join(", "),
-          videoUrl: p.videoUrl || "",
-          images: p.images || [""],
-          brandId: p.brandId || "",
-          subCategoryId: p.subCategoryId || "",
-          stockQuantity: p.stockQuantity || "",
-        });
-      } catch (err) {
-        console.error("Failed to load product", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
-    fetchProduct();
-  }, [id]);
-
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    if (name.includes("dimensions.")) {
-      const field = name.split(".")[1];
-      setForm((prev: any) => ({
-        ...prev,
-        dimensions: {
-          ...prev.dimensions,
-          [field]: value,
-        },
-      }));
-    } else {
-      setForm((prev: any) => ({ ...prev, [name]: value }));
+  const fetchBrands = async () => {
+    try {
+      const res = await api.get("/v1/brands/getAll");
+      setBrands(res.data);
+    } catch (err) {
+      console.error("Failed to fetch brands:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to load brands",
+        severity: "error",
+      });
     }
   };
 
-  const handleSubmit = async () => {
+  const fetchCategories = async () => {
     try {
-      const payload = {
-        ...form,
-        includedAccessories: form.includedAccessories
-          .split(",")
-          .map((s: string) => s.trim()),
-        compatibleWith: form.compatibleWith
-          .split(",")
-          .map((s: string) => s.trim()),
-      };
+      const res = await api.get("/v1/categories/getAll");
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to load categories",
+        severity: "error",
+      });
+    }
+  };
 
-      console.log("Sending update payload:", payload);
+  const fetchProduct = async () => {
+    try {
+      const res = await api.get(`/v1/products/${id}`);
+      const product = res.data;
 
-      if (Object.keys(payload).length === 0) {
-        alert("No fields changed.");
+      // Find the subcategory and its parent category
+      const allSubCategories = categories.flatMap((c) => c.subcategories);
+      const selectedSubCategory = allSubCategories.find(
+        (s) => s.id === product.subCategory?.id
+      );
+      const parentCategory = categories.find((cat) =>
+        cat.subcategories.some((s) => s.id === selectedSubCategory?.id)
+      );
+
+      setFormData({
+        name: product.name || "",
+        model: product.model || "",
+        price: product.price || "",
+        originalPrice: product.originalPrice || "",
+        stockQuantity: product.stockQuantity || "",
+        brandId: product.brand?.id || "",
+        categoryId: parentCategory?.id || "",
+        subCategoryId: selectedSubCategory?.id || "",
+      });
+    } catch (err) {
+      console.error("Failed to fetch product:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to fetch product details",
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchBrands(), fetchCategories()]);
+    };
+    loadData();
+  }, [id]);
+
+  // After categories are loaded, fetch the product
+  useEffect(() => {
+    if (categories.length > 0) {
+      fetchProduct();
+    }
+  }, [categories]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSelectChange = (name: string, value: any) => {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleUpdate = async () => {
+    try {
+      if (!formData.brandId || !formData.subCategoryId) {
+        setSnackbar({
+          open: true,
+          message: "Please select both brand and subcategory",
+          severity: "error",
+        });
         return;
       }
 
+      const payload = {
+        name: formData.name,
+        model: formData.model,
+        price: Number(formData.price),
+        originalPrice: Number(formData.originalPrice),
+        stockQuantity: Number(formData.stockQuantity),
+        brandId: formData.brandId,
+        subCategoryId: formData.subCategoryId,
+      };
+
       await api.patch(`/v1/products/${id}`, payload);
-      navigate("/admin/products");
+
+      setSnackbar({
+        open: true,
+        message: "Product updated successfully",
+        severity: "success",
+      });
+
+      setTimeout(() => navigate("/admin/products"), 1000);
     } catch (err) {
-      console.error("Update failed:", err);
+      console.error(err);
+      setSnackbar({
+        open: true,
+        message: "Failed to update product",
+        severity: "error",
+      });
     }
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" mt={8}>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Container maxWidth="md">
+    <Card className="max-w-2xl mx-auto mt-10 p-4">
       <Box mb={2}>
         <GoBackButton />
       </Box>
-      <Typography variant="h5" mb={2}>
-        Update Product
-      </Typography>
-      <Box display="flex" flexDirection="column" gap={2}>
+      <CardContent>
+        <Typography variant="h5" gutterBottom>
+          Edit Product
+        </Typography>
+
         <TextField
+          fullWidth
           label="Name"
           name="name"
-          value={form.name}
+          value={formData.name}
           onChange={handleChange}
+          margin="normal"
+          required
         />
         <TextField
+          fullWidth
           label="Model"
           name="model"
-          value={form.model}
+          value={formData.model}
           onChange={handleChange}
+          margin="normal"
+          required
         />
         <TextField
-          label="Description"
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          multiline
-        />
-        <TextField
+          fullWidth
           label="Price"
           name="price"
-          value={form.price}
+          value={formData.price}
           onChange={handleChange}
+          margin="normal"
+          type="number"
+          required
+          inputProps={{ min: 0, step: 0.01 }}
         />
         <TextField
+          fullWidth
           label="Original Price"
           name="originalPrice"
-          value={form.originalPrice}
+          value={formData.originalPrice}
           onChange={handleChange}
+          margin="normal"
+          type="number"
+          required
+          inputProps={{ min: 0, step: 0.01 }}
         />
         <TextField
-          label="SKU"
-          name="sku"
-          value={form.sku}
-          onChange={handleChange}
-        />
-
-        <TextField
-          label="Condition"
-          name="condition"
-          value={form.condition}
-          onChange={handleChange}
-          select
-        >
-          <MenuItem value="NEW">New</MenuItem>
-          <MenuItem value="USED">Used</MenuItem>
-        </TextField>
-
-        <TextField
-          label="Power Type"
-          name="powerType"
-          value={form.powerType}
-          onChange={handleChange}
-          select
-        >
-          <MenuItem value="ELECTRIC_CORDLESS">Electric Cordless</MenuItem>
-          <MenuItem value="ELECTRIC_CORDED">Electric Corded</MenuItem>
-          <MenuItem value="MANUAL">Manual</MenuItem>
-        </TextField>
-
-        <TextField
-          label="Voltage"
-          name="voltage"
-          value={form.voltage}
-          onChange={handleChange}
-        />
-        <TextField
-          label="Weight (kg)"
-          name="weight"
-          value={form.weight}
-          onChange={handleChange}
-        />
-
-        <TextField
-          label="Length"
-          name="dimensions.length"
-          value={form.dimensions.length}
-          onChange={handleChange}
-        />
-        <TextField
-          label="Width"
-          name="dimensions.width"
-          value={form.dimensions.width}
-          onChange={handleChange}
-        />
-        <TextField
-          label="Height"
-          name="dimensions.height"
-          value={form.dimensions.height}
-          onChange={handleChange}
-        />
-        <TextField
-          label="Dimensions Unit"
-          name="dimensions.unit"
-          value={form.dimensions.unit}
-          onChange={handleChange}
-        />
-
-        <TextField
-          label="Warranty Period"
-          name="warrantyPeriod"
-          value={form.warrantyPeriod}
-          onChange={handleChange}
-        />
-        <TextField
-          label="Included Accessories"
-          name="includedAccessories"
-          value={form.includedAccessories}
-          onChange={handleChange}
-        />
-        <TextField
-          label="Compatible With"
-          name="compatibleWith"
-          value={form.compatibleWith}
-          onChange={handleChange}
-        />
-        <TextField
-          label="Image URL"
-          name="images"
-          value={form.images[0]}
-          onChange={(e) => setForm({ ...form, images: [e.target.value] })}
-        />
-        <TextField
-          label="Video URL"
-          name="videoUrl"
-          value={form.videoUrl}
-          onChange={handleChange}
-        />
-        <TextField
+          fullWidth
           label="Stock Quantity"
           name="stockQuantity"
-          value={form.stockQuantity}
+          value={formData.stockQuantity}
           onChange={handleChange}
-        />
-        <TextField
-          label="Brand ID"
-          name="brandId"
-          value={form.brandId}
-          onChange={handleChange}
-        />
-        <TextField
-          label="SubCategory ID"
-          name="subCategoryId"
-          value={form.subCategoryId}
-          onChange={handleChange}
+          margin="normal"
+          type="number"
+          required
+          inputProps={{ min: 0 }}
         />
 
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Update Product
-        </Button>
-      </Box>
-    </Container>
+        {/* Brand Dropdown */}
+        <FormControl fullWidth margin="normal" required>
+          <InputLabel>Brand</InputLabel>
+          <Select
+            value={formData.brandId}
+            onChange={(e) => handleSelectChange("brandId", e.target.value)}
+            label="Brand"
+          >
+            {brands.map((brand) => (
+              <MenuItem key={brand.id} value={brand.id}>
+                {brand.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Category Dropdown */}
+        <FormControl fullWidth margin="normal" required>
+          <InputLabel>Category</InputLabel>
+          <Select
+            value={formData.categoryId}
+            onChange={(e) => {
+              const selectedCategoryId = e.target.value;
+              setFormData({
+                ...formData,
+                categoryId: selectedCategoryId,
+                subCategoryId: "", // Reset subcategory
+              });
+            }}
+            label="Category"
+          >
+            {categories.map((cat) => (
+              <MenuItem key={cat.id} value={cat.id}>
+                {cat.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Subcategory Dropdown */}
+        <FormControl fullWidth margin="normal" required>
+          <InputLabel>Subcategory</InputLabel>
+          <Select
+            value={formData.subCategoryId}
+            onChange={(e) =>
+              handleSelectChange("subCategoryId", e.target.value)
+            }
+            label="Subcategory"
+            disabled={!formData.categoryId}
+          >
+            {categories
+              .find((cat) => cat.id === formData.categoryId)
+              ?.subcategories.map((sub: SubCategory) => (
+                <MenuItem key={sub.id} value={sub.id}>
+                  {sub.name}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+
+        {/* Upload Placeholder */}
+        <Box sx={{ mt: 3 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={() => setDialogOpen(true)}
+          >
+            Upload Image or Video (Coming Soon)
+          </Button>
+        </Box>
+
+        {/* Submit Button */}
+        <Box sx={{ mt: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleUpdate}
+            fullWidth
+            disabled={!formData.brandId || !formData.subCategoryId}
+          >
+            Update Product
+          </Button>
+        </Box>
+      </CardContent>
+
+      {/* Snackbar & Dialog */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity as any}>{snackbar.message}</Alert>
+      </Snackbar>
+
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle>Feature in Development</DialogTitle>
+        <DialogContent>
+          File upload feature is under development and will be available soon.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)} autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Card>
   );
-};
-
-export default EditProduct;
+}

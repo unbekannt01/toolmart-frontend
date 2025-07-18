@@ -4,7 +4,7 @@ import { Box, Typography, Button, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
-const SOCKET_URL = "http://localhost:3001";
+const SOCKET_URL = "https://nestjs-openapi-1.onrender.com/notifications";
 const AdminPanel = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<string[]>([]);
